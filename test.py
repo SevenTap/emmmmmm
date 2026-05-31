@@ -13,7 +13,7 @@ class BattleModel:
 
         # 使用 xiaodui 生成初始队伍
         self.party = xiaodui.generate_party(4)
-
+        self.recruit_candidates = None
         self.max_turns = sum(m["total_turns"] for m in self.party)
         self.pending_actions = {}
         self.victory = False  # 是否胜利
@@ -44,7 +44,7 @@ class BattleModel:
         for m in self.party:
             m["used_turns"] = 0
             m["acted"] = False
-        
+        self.recruit_candidates = None
         self.pending_actions.clear()
         self.victory = False
         self.recruit_used = False  # 重置招募状态
@@ -63,12 +63,12 @@ class BattleModel:
                 self.damage_multipliers[target_id] = self.damage_multipliers.get(target_id, 1) * pa["value"]
                 pa["member"]["used_turns"] += 1
                 pa["member"]["acted"] = True
-        
+
         # 再处理所有伤害/治疗技能
         for pa in self.pending_actions.values():
             attr = pa["attr"]
             member = pa["member"]
-            
+
             if attr == "hp":
                 # 普通伤害/治疗技能
                 damage = pa["value"]
@@ -141,11 +141,14 @@ class BattleApp:
 
     def show_recruit(self):
         model = self.model
+        if model.recruit_candidates is None:
+            model.recruit_candidates = xiaodui.recruit_candidates(model.party)
         if model.recruit_used:
             # 本轮已招募，显示提示
             self.battle_view.action_log.config(text="本回合只能招募一个！")
             return
-        self.recruit_view.refresh()
+
+        self.recruit_view.refresh(model.recruit_candidates)
         self.recruit_view.lift()
 
     def next_round(self):
@@ -213,7 +216,7 @@ class BattleView(tk.Frame):
 
         self.next_turn_btn = tk.Button(self, text="下一回合", command=self.next_turn)
         self.next_turn_btn.pack(pady=5)
-        self.recruit_btn = tk.Button(self, text="招募队员", command=self.controller.show_recruit, state="disabled")
+        self.recruit_btn = tk.Button(self, text="招募队员", command=self.controller.show_recruit, state="disabled" )
         self.recruit_btn.pack(pady=5)# 固定的初始角色列表
 
     def refresh(self):
@@ -400,6 +403,7 @@ class SkillView(tk.Frame):
         self.controller.show_battle()
 # ==================================================
 if __name__ == "__main__":
+    i=0
     root = tk.Tk()
     BattleApp(root)
     root.mainloop()

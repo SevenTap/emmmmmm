@@ -50,7 +50,6 @@ def generate_party(max_members=4):
 def recruit_candidates(party):
     candidate_count =3
     candidates = random.sample(CHARACTER_TEMPLATES, candidate_count)
-
     return [create_member(template) for template in candidates]
 
 def recruit_member(party, candidate_index, max_members=4):
@@ -128,11 +127,10 @@ class RecruitView(tk.Frame):
         self.back_button = tk.Button(self, text="返回战斗", command=self.on_back)
         self.back_button.pack(pady=10)
 
-    def refresh(self):
+    def refresh(self, candidates=None):
         # 清空当前队伍显示
         for w in self.current_party_frame.winfo_children():
             w.destroy()
-
         # 显示当前队伍
         for member in self.party:
             # 格式化技能显示
@@ -140,14 +138,14 @@ class RecruitView(tk.Frame):
             lbl = tk.Label(self.current_party_frame, 
                           text=f"{member['name']} (回合数: {member['total_turns']}) | 技能: {skills_text}")
             lbl.pack(anchor="w", padx=5, pady=2)
-
         # 获取候选人
-        self.candidates = recruit_candidates(self.party)
-
+        if candidates is not None:
+            self.candidates = candidates
+        else:
+            self.candidates = recruit_candidates(self.party)
         # 清空候选人显示
         for w in self.candidates_frame.winfo_children():
             w.destroy()
-
         # 显示候选人
         if not self.candidates:
             tk.Label(self.candidates_frame, text="没有可招募的候选人").pack(pady=5)
@@ -160,7 +158,6 @@ class RecruitView(tk.Frame):
                                width=40,
                                command=lambda c=candidate: self.select_candidate(c))
                 btn.pack(pady=3)
-
         # 隐藏替换选择框
         self.replace_frame.pack_forget()
         self.message_label.config(text="")
@@ -187,8 +184,6 @@ class RecruitView(tk.Frame):
         # 清空替换框
         for w in self.replace_frame.winfo_children():
             w.destroy()
-
-        # 显示可替换的队员（排除初始角色战士）
         replaceable_members = [m for m in self.party if m["name"] not in [char_template["name"] for char_template in INITIAL_CHARACTERS]]
 
         if not replaceable_members:
