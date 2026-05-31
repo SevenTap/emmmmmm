@@ -1,7 +1,8 @@
 import tkinter as tk
 import guaiwu as gw
 import xiaodui
-
+# ==================================================
+# ==================================================
 class BattleModel:
     def __init__(self):
         self.global_turn = 0
@@ -102,8 +103,6 @@ class BattleModel:
 
     def check_victory(self):
         return all(e["hp"] == 0 for e in self.enemies)
-
-
 # ==================================================
 # ==================================================
 class BattleApp:
@@ -152,7 +151,8 @@ class BattleApp:
     def next_round(self):
         self.model.next_round()
         self.show_battle()
-
+# ==================================================
+# ==================================================
 class StartView(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -184,7 +184,6 @@ class StartView(tk.Frame):
             justify="left"
         )
         notice_label.pack(padx=15, pady=10)
-
 # ==================================================
 # ==================================================
 class BattleView(tk.Frame):
@@ -399,7 +398,6 @@ class SkillView(tk.Frame):
         }
 
         self.controller.show_battle()
-
 # ==================================================
 if __name__ == "__main__":
     root = tk.Tk()
