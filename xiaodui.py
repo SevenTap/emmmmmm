@@ -127,6 +127,19 @@ class RecruitView(tk.Frame):
         self.back_button = tk.Button(self, text="返回战斗", command=self.on_back)
         self.back_button.pack(pady=10)
 
+    def _set_buttons_state(self, state):
+        for widget in self.winfo_children():
+            if isinstance(widget, tk.Button):
+                widget.config(state=state)
+        for frame in [self.current_party_frame, self.candidates_frame, self.replace_frame]:
+            for widget in frame.winfo_children():
+                if isinstance(widget, tk.Button):
+                    widget.config(state=state)
+
+    def _delayed_back(self):
+        self._set_buttons_state("normal")
+        self.on_back()
+
     def refresh(self, candidates=None):
         # 清空当前队伍显示
         for w in self.current_party_frame.winfo_children():
@@ -174,8 +187,10 @@ class RecruitView(tk.Frame):
             # 设置招募已使用标志
             if self.controller and hasattr(self.controller, 'model'):
                 self.controller.model.recruit_used = True
+            # 禁用所有按钮，避免延迟期间继续交互
+            self._set_buttons_state("disabled")            
             # 延迟返回战斗界面，让用户看到招募成功提示
-            self.master.after(1500, self.on_back)
+            self.master.after(1500, self._delayed_back)
         else:
             # 队伍已满，显示替换选择框
             self.show_replace_selection()
@@ -218,8 +233,10 @@ class RecruitView(tk.Frame):
         # 设置招募已使用标志
         if self.controller and hasattr(self.controller, 'model'):
             self.controller.model.recruit_used = True
+        # 禁用所有按钮，避免延迟期间继续交互
+        self._set_buttons_state("disabled")
         # 延迟返回战斗界面，让用户看到替换成功提示
-        self.master.after(1500, self.on_back)
+        self.master.after(1500, self._delayed_back)
 
     def cancel_replace(self):
         self.replace_frame.pack_forget()
