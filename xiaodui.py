@@ -18,6 +18,15 @@ INITIAL_CHARACTERS = [
     {"name": "神官", "total_turns": 5, "skills": [("神力", "hp", +1),("神力", "hp", +2),("神力", "hp", +3)]}
 ]
 
+def get_initial_characters(developer_mode=False):
+    x_warrior_skills = [("猛击", "hp", -15)]
+    if developer_mode:
+        x_warrior_skills.append(("羁绊", "hp", +666))
+    return [
+        {"name": "x战士", "total_turns": 5, "skills": x_warrior_skills},
+        {"name": "神官", "total_turns": 5, "skills": [("神力", "hp", +1),("神力", "hp", +2),("神力", "hp", +3)]}
+    ]
+
 def create_member(template):
     # 处理技能数值，将区间转换为随机数值
     skills = []
@@ -39,11 +48,11 @@ def create_member(template):
         "skills": skills
     }
 
-def generate_party(max_members=4):
+def generate_party(max_members=4, developer_mode=False):
     party = []
 
     # 添加所有初始角色
-    for char_template in INITIAL_CHARACTERS:
+    for char_template in get_initial_characters(developer_mode):
         party.append(create_member(char_template))
     return party
 

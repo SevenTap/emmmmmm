@@ -4,7 +4,7 @@ import xiaodui
 # ==================================================
 # ==================================================
 class BattleModel:
-    def __init__(self):
+    def __init__(self, developer_mode=False):
         self.global_turn = 0
         self.level = 1  # 当前关卡等级
         self.round = 0  # 当前轮数
@@ -12,7 +12,7 @@ class BattleModel:
         self.enemies = gw.generate_monsters(self.level, 4)
 
         # 使用 xiaodui 生成初始队伍
-        self.party = xiaodui.generate_party(4)
+        self.party = xiaodui.generate_party(4, developer_mode=developer_mode)
         self.recruit_candidates = None
         self.max_turns = sum(m["total_turns"] for m in self.party)
         self.pending_actions = {}
@@ -109,6 +109,7 @@ class BattleApp:
     def __init__(self, root):
         self.root = root
         self.root.geometry("480x600")
+        self.developer_mode = tk.BooleanVar(master=root, value=False)
         self.model = BattleModel()
         container = tk.Frame(root)
         container.pack(fill="both", expand=True)
@@ -125,7 +126,7 @@ class BattleApp:
         self.start_view.lift()
     def start_game(self):
         """开始游戏"""
-        self.model = BattleModel()
+        self.model = BattleModel(developer_mode=self.developer_mode.get())
         self.recruit_view = xiaodui.RecruitView(
             self.battle_view.master, self, self.model.party
         )
@@ -160,6 +161,17 @@ class StartView(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
+
+        self.dev_checkbox = tk.Checkbutton(
+            self,
+            text="开发人员选项",
+            variable=self.controller.developer_mode,
+            onvalue=True,
+            offvalue=False,
+            font=("微软雅黑", 12)
+        )
+        self.dev_checkbox.pack(pady=10)
+
         start_btn = tk.Button(
             self,
             text="开始游戏",
@@ -170,7 +182,7 @@ class StartView(tk.Frame):
             relief="raised",
             bd=3
         )
-        start_btn.pack(pady=40)
+        start_btn.pack(pady=10)
         notice_frame = tk.LabelFrame(
             self,
             text="公告",
